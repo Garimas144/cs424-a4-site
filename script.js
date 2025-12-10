@@ -41,7 +41,13 @@ const completeSpec = {
           select: { type: "interval", encodings: ["x", "y"] }
         }
       ],
-      mark: { type: "circle", size: 100, cursor: "pointer" },
+      mark: {
+        type: "circle",
+        size: 100,
+        cursor: "pointer",
+        stroke: "#000",
+        strokeWidth: 1
+      },
       encoding: {
         x: {
           field: "x",
@@ -73,16 +79,18 @@ const completeSpec = {
         strokeWidth: {
           condition: [
             { param: "school_click", value: 3 },
-            { param: "top_school_select", value: 3 }
+            { param: "top_school_select", value: 3 },
+            { param: "level_click", value: 2 }
           ],
-          value: 0
+          value: 1
         },
         stroke: {
           condition: [
             { param: "school_click", value: "#000" },
-            { param: "top_school_select", value: "#e74c3c" }
+            { param: "top_school_select", value: "#e74c3c" },
+            { param: "level_click", value: "#000" }
           ],
-          value: null
+          value: "#000"
         },
         tooltip: [
           { field: "school", type: "nominal", title: "School" },
