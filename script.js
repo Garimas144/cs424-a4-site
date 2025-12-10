@@ -1,10 +1,8 @@
-// script.js - COMPLETE TASK 3 IMPLEMENTATION WITH BIDIRECTIONAL LINKING
-// This satisfies ALL requirements: Tasks 1, 2, and 3
-
+// script.js - FIXED VERSION WITH CORRECT COLUMN HANDLING
 console.log("=== Loading Complete Interactive Dashboard ===");
 
-const EMB_PATH = "data/embeddings_cps_2d.csv";
-const SPATIAL_PATH = "data/cps_spatial.csv";
+const EMB_PATH = "data/embeddings_cps_2d_enhanced.csv";
+const SPATIAL_PATH = "data/cps_spatial_enhanced.csv";
 
 const levelScale = {
   domain: ["ES", "MS", "HS"],
@@ -17,7 +15,7 @@ const behaviorColorScale = {
 };
 
 // =================================================================
-// COMPLETE SPECIFICATION - WITH BIDIRECTIONAL INTERACTIONS
+// COMPLETE SPECIFICATION - FIXED VERSION
 // =================================================================
 const completeSpec = {
   $schema: "https://vega.github.io/schema/vega-lite/v5.json",
@@ -25,7 +23,7 @@ const completeSpec = {
   vconcat: [
     {
       // ============================================================
-      // MAIN EMBEDDING VIEW - Primary exploration interface
+      // MAIN EMBEDDING VIEW
       // ============================================================
       title: {
         text: "🎯 Embedding Space: School Similarity Explorer",
@@ -61,7 +59,6 @@ const completeSpec = {
           title: "School Level",
           scale: levelScale
         },
-        // CRITICAL: Embedding responds to selections from other views
         opacity: {
           condition: [
             { param: "school_click", value: 1 },
@@ -97,7 +94,7 @@ const completeSpec = {
     },
     {
       // ============================================================
-      // INTERACTIVE VISUALIZATIONS WITH BIDIRECTIONAL LINKING
+      // INTERACTIVE VISUALIZATIONS
       // ============================================================
       title: {
         text: "📊 Interactive Analysis Views",
@@ -106,10 +103,9 @@ const completeSpec = {
       },
       vconcat: [
         {
-          // ROW 1: Single-view interactive + Multi-view Part 1
           hconcat: [
             {
-              // Interactive Bar Chart with Selection
+              // Interactive Bar Chart
               title: {
                 text: "📊 Top Schools by Behavior Score",
                 subtitle: "Click any bar to highlight that school in embedding above ↑"
@@ -124,7 +120,6 @@ const completeSpec = {
                 },
                 { filter: "datum.rank <= 15" }
               ],
-              // CRITICAL: Selection that feeds back to embedding
               params: [{
                 name: "top_school_select",
                 select: { type: "point", fields: ["school"], on: "click" }
@@ -163,7 +158,7 @@ const completeSpec = {
               }
             },
             {
-              // Level Distribution Strip Plot
+              // Level Distribution
               title: {
                 text: "🔵 Misconduct Distribution by School Level",
                 subtitle: "Click any level (ES/MS/HS) to filter embedding above ↑"
@@ -173,7 +168,6 @@ const completeSpec = {
               transform: [
                 { filter: { param: "embedding_brush" } }
               ],
-              // CRITICAL: Level selection that feeds back to embedding
               params: [{
                 name: "level_click",
                 select: { type: "point", fields: ["level"], on: "click", toggle: true }
@@ -215,10 +209,9 @@ const completeSpec = {
           ]
         },
         {
-          // ROW 2: Geographic view + Additional Context
           hconcat: [
             {
-              // Geographic Distribution Map
+              // Geographic Distribution Map - FIXED
               title: {
                 text: "🗺️ Geographic Distribution",
                 subtitle: "Click any school on map to highlight in embedding above ↑"
@@ -227,17 +220,8 @@ const completeSpec = {
               height: 350,
               data: { url: SPATIAL_PATH },
               transform: [
-                {
-                  lookup: "school",
-                  from: {
-                    data: { url: EMB_PATH },
-                    key: "school",
-                    fields: ["x", "y", "behavior_score", "cluster", "outlier_score", "level"]
-                  }
-                },
                 { filter: { param: "embedding_brush" } }
               ],
-              // CRITICAL: School selection that feeds back to embedding
               params: [{
                 name: "school_click",
                 select: { type: "point", fields: ["school"], on: "click" }
@@ -264,13 +248,15 @@ const completeSpec = {
                   { field: "school", type: "nominal", title: "School" },
                   { field: "level", type: "nominal", title: "Level" },
                   { field: "cluster", type: "nominal", title: "Cluster" },
-                  { field: "behavior_score", type: "quantitative", title: "Behavior Score", format: ".1f" }
+                  { field: "behavior_score", type: "quantitative", title: "Behavior Score", format: ".1f" },
+                  { field: "safety", type: "quantitative", title: "Safety", format: ".1f" },
+                  { field: "attendance", type: "quantitative", title: "Attendance", format: ".1f" }
                 ]
               },
               projection: { type: "mercator" }
             },
             {
-              // Additional Context View - Level Comparison
+              // Box Plot Context View
               title: {
                 text: "📦 Context: Safety Score Distribution by Level",
                 subtitle: "Box plots show median, quartiles, outliers"
@@ -403,14 +389,15 @@ const completeSpec = {
           hconcat: [
             {
               title: {
-                text: "Misconduct vs Academic Quality",
-                subtitle: "Correlation analysis"
+                text: "Misconduct vs Instruction Quality",
+                subtitle: "Correlation analysis - uses 'instr' from embedding data"
               },
               width: 450,
               height: 300,
               transform: [
                 { filter: { param: "embedding_brush" } },
-                { filter: { param: "level_click" } }
+                { filter: { param: "level_click" } },
+                { filter: "datum.instr != null" }
               ],
               mark: { type: "point", filled: true, size: 80 },
               encoding: {
