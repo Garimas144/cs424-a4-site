@@ -3,8 +3,8 @@
 
 console.log("=== Loading Complete Interactive Dashboard ===");
 
-const EMB_PATH = "/data/embeddings_cps_2d_enhanced.csv";
-const SPATIAL_PATH = "/data/cps_spatial_enhanced.csv";
+const EMB_PATH = "data/embeddings_cps_2d.csv";
+const SPATIAL_PATH = "data/cps_spatial.csv";
 
 const levelScale = {
   domain: ["ES", "MS", "HS"],
